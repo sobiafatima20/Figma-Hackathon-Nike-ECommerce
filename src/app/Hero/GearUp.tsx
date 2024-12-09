@@ -3,15 +3,7 @@
 import Image from "next/image";
 
 const GearUp = () => {
-  const scrollLeft = (id) => {
-    const carousel = document.getElementById(id);
-    carousel.scrollLeft -= 300; // Adjust scroll distance as needed
-  };
-
-  const scrollRight = (id) => {
-    const carousel = document.getElementById(id);
-    carousel.scrollLeft += 300; // Adjust scroll distance as needed
-  };
+ 
 
   return (
     <div className="w-full max-w-screen-xl h-auto pt-8 px-6 md:px-10 lg:px-16 mx-auto">
