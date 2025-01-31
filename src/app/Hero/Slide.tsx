@@ -1,29 +1,56 @@
 "use client";
-import { useRef } from "react";
+
+import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
+import { createClient } from "@sanity/client";
+
+const client = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  useCdn: false,
+  token: process.env.SANITY_API_TOKEN,
+  apiVersion: '2021-08-31'
+});
+
+type Product = {
+  _id: string;
+  productName: string;
+  category: string;
+  price: number;
+  inventory: number;
+  colors: string[];
+  status: string;
+  imageUrl: string;
+  description: string;
+};
 
 export default function Slider() {
   const sliderRef = useRef<HTMLDivElement>(null);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  // Shoe images
-  const images = [
-    "/images/shoe1.svg",
-    "/images/shoe2.svg",
-    "/images/shoe3.svg",
-    "/images/shoe1.svg", // Repeated image for demonstration
-  ];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const query = `*[_type == "product"] {
+        _id,
+        productName,
+        category,
+        price,
+        inventory,
+        colors,
+        status,
+        "imageUrl": image.asset->url,
+        description
+      }`;
+      try {
+        const result = await client.fetch(query);
+        setProducts(result);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
 
-  // Shoe details (dynamic text for each card)
-  const shoeDetails = [
-    {
-      name: "Nike Air Max Pulse",
-      category: "Women’s Shoes",
-      price: "₹ 13,995",
-    },
-    { name: "Nike Air Max Plus", category: "Men’s Shoes", price: "₹ 13,995" },
-    { name: "Nike Air Max 2021", category: "Men’s Shoes", price: "₹ 13,995" },
-    { name: "Nike Air Max 270", category: "Women’s Shoes", price: "₹ 13,995" },
-  ];
+    fetchProducts();
+  }, []);
 
   const scrollLeft = () => {
     if (sliderRef.current) {
@@ -86,32 +113,32 @@ export default function Slider() {
         ref={sliderRef}
       >
         {/* Dynamically Render Shoe Cards */}
-        {images.map((image, index) => (
+        {products.map((product) => (
           <div
-            key={index}
+            key={product._id}
             className="flex-shrink-0 w-[300px] md:w-[441.36px] h-auto"
           >
             <div className="w-full h-[441.36px]">
               <Image
-                src={image}
-                alt={`Nike Shoe ${index + 1}`}
+                src={product.imageUrl}
+                alt={product.productName}
                 width={441.36}
                 height={441.36}
                 className="object-contain"
               />
             </div>
-            <div className="w-full h-[48px] bg-[#FFFFFF] p-2">
+            <div className="w-full h-[58px] bg-[#FFFFFF] p-2">
               <div className="w-full flex justify-between">
                 <div>
                   <p className="font-[Helvetica Neue] font-[500] text-[15px] leading-[24px] text-[#111111]">
-                    {shoeDetails[index].name}
+                    {product.productName}
                   </p>
                   <p className="font-[Helvetica Neue] font-[400] text-[15px] leading-[24px] text-[#757575]">
-                    {shoeDetails[index].category}
+                    {product.category}
                   </p>
                 </div>
                 <p className="font-[Helvetica Neue] font-[400] text-[15px] leading-[24px] text-[#111111]">
-                  {shoeDetails[index].price}
+                  ₹ {product.price.toLocaleString()}
                 </p>
               </div>
             </div>

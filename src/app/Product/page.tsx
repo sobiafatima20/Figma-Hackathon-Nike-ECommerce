@@ -1,276 +1,111 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { createClient } from "@sanity/client";
 
-const Product = () => {
+const client = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  useCdn: false,
+  token: process.env.SANITY_API_TOKEN,
+  apiVersion: "2021-08-31",
+});
+
+type Product = {
+  _id: string;
+  productName: string;
+  category: string;
+  price: number;
+  inventory: number;
+  colors: string[];
+  status: string;
+  imageUrl: string;
+  description?: string;
+  slug: { 
+    current: string 
+  };
+};
+
+const ProductPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [sortedProducts, setSortedProducts] = useState<Product[]>([]);
+  const [filterVisible, setFilterVisible] = useState(true);
+  const [productsVisible, setProductsVisible] = useState(true);
+  const [sortVisible, setSortVisible] = useState(false);
+  const [sortCriteria, setSortCriteria] = useState<string>("");
 
-  const products = [
-    {
-      id: 1,
-      image: "/product/product1.svg",
-      label: "Just In",
-      name: "Nike Air Force 1 Mid '07",
-      description: "Men's Shoes - 1 Colour",
-      price: "MRP : ₹ 10 795.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 2,
-      image: "/product/product2.svg",
-      label: "Just In",
-      name: "Nike Court Vision Low Next Nature",
-      description: "Men's Shoes - 1 Colour",
-      price: "MRP : ₹ 4 995.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 3,
-      image: "/product/product3.svg",
-      label: "Just In",
-      name: "Nike Air Force 1 PLT.AF.ORM",
-      description: "Women's Shoes - 1 Colour",
-      price: "MRP : ₹ 8 695.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 4,
-      image: "/product/product4.svg",
-      label: "Promo Exclusion",
-      name: "Air Jordan 1 Elevate Low",
-      description: "Men's Shoes - 1 Colour",
-      price: "MRP : ₹ 13 295.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 5,
-      image: "/product/product5.svg",
-      label: "Promo Exclusion",
-      name: "Nike Air Force 1 React",
-      description: "Men's Shoes - 1 Colour",
-      price: "MRP : MRP : ₹ 11 895.00",
-    },
-    {
-      id: 6,
-      image: "/product/product6.svg",
-      label: "Just In",
-      name: "Nike Standard Issue",
-      description: "Women's Basketball Jersey",
-      price: "MRP : ₹ 2 895.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 7,
-      image: "/product/product7.svg",
-      label: "Promo Exclusion",
-      name: "Nike Dunk Low Retro SE",
-      description: "Men's Shoes - 1 Colour",
-      price: "MRP : ₹ 9 695.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 8,
-      image: "/product/product8.svg",
-      label: "Sustainable Materials",
-      name: "Nike Dri-FIT UV Hyverse",
-      description: "Men's Short-Sleeve Graphic Fitness Top - 1 Colour",
-      price: "MRP : ₹ 2 495.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 9,
-      image: "/product/product9.svg",
-      label: "Just In",
-      name: "Nike Court Vision Low",
-      description: "Men's Shoes - 1 Colour",
-      price: "MRP : ₹ 5 695.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 10,
-      image: "/product/product10.svg",
-      label: "Just In",
-      name: "Nike Dri-FIT Ready",
-      description: "Men's Short-Sleeve Fitness Top - 3 Colour",
-      price: "MRP : ₹ 2 495.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 11,
-      image: "/product/product11.svg",
-      label: "Just In",
-      name: "Nike One Leak Protection: Period",
-      description: "Women's Mid-Rise 18cm (approx.) Biker Shorts - 2 Colour",
-      price: "MRP : ₹ 3 395.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 12,
-      image: "/product/product12.svg",
-      label: "Just In",
-      name: "Nike Air Force 1 LV8 3",
-      description: "Older Kids' Shoe - 1 Color",
-      price: "MRP : ₹ 7 495.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 13,
-      image: "/product/product13.svg",
-      label: "Just In",
-      name: "Nike Blazer Low Platform",
-      description: "Women's Shoes - 1 Colour",
-      price: "MRP : ₹ 8 195.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 14,
-      image: "/product/product14.svg",
-      label: "Just In",
-      name: "Nike Air Force 1 '07",
-      description: "Women's Shoe - 2 Colour",
-      price: "MRP : ₹ 8 195.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 15,
-      image: "/product/product15.svg",
-      label: "Just In",
-      name: "Nike Pro Dri-FIT",
-      description: "Men's Tight-Fit Sleeveless Top - 1 Colour",
-      price: "MRP : ₹ 1 495.00",
-    },
-    {
-      id: 16,
-      image: "/product/product16.svg",
-      label: "Promo Exclusion",
-      name: "Nike Dunk Low Retro",
-      description: "Men's Shoes - 1 Colour",
-      price: "MRP : ₹ 8 695.00",
-    },
-    {
-      id: 17,
-      image: "/product/product17.svg",
-      label: "Just In",
-      name: "Nike Air Max SC",
-      description: "Women's Shoes - 2 Colour",
-      price: "MRP : ₹ 5 995.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 18,
-      image: "/product/product18.svg",
-      label: "Just In",
-      name: "Nike Dri-FIT UV Miler",
-      description: "Men's Short-Sleeve Running Top - 1 Color",
-      price: "MRP : ₹ 1 695.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 19,
-      image: "/product/product19.svg",
-      label: "Just In",
-      name: "Nike Air Max SYSTM",
-      description: "Older Kids' Shoes - 1 Colour",
-      price: "MRP : ₹ 6 495.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 20,
-      image: "/product/product20.svg",
-      label: "Just In",
-      name: "Nike Alate All U",
-      description: "Women's Light-Support Lightly Lined U-Neck Printed Sports Bra - 1 Colour",
-      price: "MRP : ₹ 2 195.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 21,
-      image: "/product/product21.svg",
-      label: "Just In",
-      name: "Nike Court Legacy Lift",
-      description: "Women's Shoes - 2 Colour",
-      price: "MRP : ₹ 7 495.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 22,
-      image: "/product/product22.svg",
-      label: "Just In",
-      name: "Women's Medium-support Padded Sports Bra Tank",
-      description: "Men's Shoes - 2 Colour",
-      price: "MRP : ₹ 3 095.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 23,
-      image: "/product/product23.svg",
-      label: "Just In",
-      name: "Nike SB Zoom Janoski OG+",
-      description: "Shoes - 1 Colour",
-      price: "MRP : ₹ 8 595.00",
-    },
-    {
-      id: 24,
-      image: "/product/product24.svg",
-      label: "Just In",
-      name: "Nike Dri-FIT Run Division Rise 365",
-      description: "Men's Running Tank - 2 Colors",
-      price: "MRP : ₹ 3 495.00",
-      link: "./ProductDetail"
-    },{
-      id: 25,
-      image: "/product/product25.svg",
-      label: "Just In",
-      name: "Nike Dri-FIT Challenger",
-      description: "Men's 18cm (approx.) 2-in-1 Versatile Shorts - 1 Colour",
-      price: "MRP : ₹ 2 495.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 26,
-      image: "/product/product26.svg",
-      label: "Just In",
-      name: "Jordan Series ES",
-      description: "Men's Shoes - 2 Colour",
-      price: "MRP : ₹ 7 495.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 27,
-      image: "/product/product27.svg",
-      label: "Just In",
-      name: "Nike Outdoor Play",
-      description: "Older Kids' Oversized Woven Jacket - 1 Colour",
-      price: "MRP : ₹ 3 895.00",
-    },
-    {
-      id: 28,
-      image: "/product/product28.svg",
-      label: "Just In",
-      name: "Nike Sportswear Trend",
-      description: "Older Kids' (Girls') High-waisted Woven Shorts - 2 Colour",
-      price: "MRP : ₹ 2 495.00",
-    },
-    {
-      id: 29,
-      image: "/product/product29.svg",
-      label: "Just In",
-      name: "Nike Blazer Low '77 Jumbo",
-      description: "Women's Shoes - 1 Colour",
-      price: "MRP : ₹ 8 595.00",
-      link: "./ProductDetail"
-    },
-    {
-      id: 30,
-      image: "/product/product30.svg",
-      label: "Just In",
-      name: "Nike SB Force 58",
-      description: "Skate Shoe - 1 Colour",
-      price: "MRP : ₹ 5 995.00",
-      link: "./ProductDetail"
-    },
-  ];
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 8;
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const query = `*[_type == "product"] {
+        _id,
+        productName,
+        category,
+        price,
+        inventory,
+        colors,
+        status,
+        "imageUrl": image.asset->url,
+        description,
+        slug
+      }`;
+      try {
+        const result = await client.fetch(query);
+        setProducts(result);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    let sorted = [...products];
+    if (sortCriteria === "featured") {
+      sorted = sorted.sort((a, b) => a.productName.localeCompare(b.productName));
+    } else if (sortCriteria === "newest") {
+      sorted = sorted.sort((a, b) => b.price - a.price); // Assuming price indicates newness
+    } else if (sortCriteria === "lowToHigh") {
+      sorted = sorted.sort((a, b) => a.price - b.price);
+    } else if (sortCriteria === "highToLow") {
+      sorted = sorted.sort((a, b) => b.price - a.price);
+    }
+    setSortedProducts(sorted);
+  }, [sortCriteria, products]);
+
+  // Handle pagination and page change
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = sortedProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(sortedProducts.length / productsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleSortClick = (criteria: string) => {
+    setSortCriteria(criteria);
+    setSortVisible(false); // Close dropdown after selection
+  };
+
+  // Toggle filter visibility
+  const toggleFilters = () => {
+    setFilterVisible(!filterVisible);
+    setProductsVisible(!filterVisible); // Hide products when filters are hidden
+  };
 
   return (
     <section className="w-full px-4 md:px-8 py-8">
@@ -281,71 +116,83 @@ const Product = () => {
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           } md:w-[300px]`}
         >
-          {/* Close Button (Mobile) */}
-          <button
-            className="block md:hidden mb-4 text-[#111111] font-sans font-medium text-[16px]"
-            onClick={() => setIsSidebarOpen(false)}
-          >
-            Close Filters ✕
-          </button>
-
           {/* Sidebar Content */}
-          <h3 className="font-sans font-bold text-[18px] text-[#111111]">
-            Categories
-          </h3>
-          <ul className="space-y-4">
-            <li className="font-sans font-medium text-[16px] text-[#111111]">
-              Shoes
-            </li>
-            <li className="font-sans font-medium text-[16px] text-[#111111]">
-              Sports Bras
-            </li>
-            <li className="font-sans font-medium text-[16px] text-[#111111]">
-              Tops & T-Shirts
-            </li>
-            <li className="font-sans font-medium text-[16px] text-[#111111]">
-              Hoodies & Sweatshirts
-            </li>
-            <li className="font-sans font-medium text-[16px] text-[#111111]">
-              Jackets
-            </li>
-          </ul>
+          {/* Search Bar */}
+          <input
+            type="text"
+            placeholder="Search for products..."
+            className="border border-gray-300 rounded-lg px-4 py-2 w-full max-w-xs focus:outline-none focus:ring focus:border-blue-300"
+          />
+
+          {/* Categories Section */}
+          <h3 className="font-sans font-bold text-[18px] text-[#111111]">Categories</h3>
+          <div>
+            <ul className="space-y-3">
+              {[
+                "Shoes",
+                "Sports Bras",
+                "Tops & T-Shirts",
+                "Hoodies & Sweatshirts",
+                "Jackets",
+                "Trousers & Tights",
+                "Shorts",
+                "Tracksuits",
+                "Jumpsuits & Rompers",
+                "Skirts & Dresses",
+                "Socks",
+                "Accessories & Equipment",
+              ].map((item, index) => (
+                <li
+                  key={index}
+                  className="text-slate-800 font-medium leading-tight hover:underline cursor-pointer"
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
 
           {/* Gender Filter */}
-          <div>
-            <h4 className="font-sans font-bold text-[16px] text-[#111111] mt-4 mb-2">
-              Gender
-            </h4>
+          <div className="relative border-t border-b border-slate-200 py-4">
+            <h3 className="text-lg font-medium mb-3">Gender</h3>
             <div className="space-y-2">
-              <label className="block">
-                <input type="checkbox" className="mr-2" />
-                Men
-              </label>
-              <label className="block">
-                <input type="checkbox" className="mr-2" />
-                Women
-              </label>
-              <label className="block">
-                <input type="checkbox" className="mr-2" />
-                Unisex
-              </label>
+              {["Men", "Women", "Unisex"].map((gender, index) => (
+                <div key={index} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={gender.toLowerCase()}
+                    className="form-checkbox h-4 w-4 text-slate-800 bg-slate-200 border-gray-300 rounded-sm focus:ring-slate-500"
+                  />
+                  <label
+                    htmlFor={gender.toLowerCase()}
+                    className="ml-2 text-slate-800 font-medium cursor-pointer"
+                  >
+                    {gender}
+                  </label>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Price Filter */}
-          <div>
-            <h4 className="font-sans font-bold text-[16px] text-[#111111] mt-4 mb-2">
-              Shop By Price
-            </h4>
+          <div className="border-b border-slate-200 py-4">
+            <h3 className="text-lg font-medium mb-3">Shop By Price</h3>
             <div className="space-y-2">
-              <label className="block">
-                <input type="checkbox" className="mr-2" />
-                Under ₹ 2,500.00
-              </label>
-              <label className="block">
-                <input type="checkbox" className="mr-2" />
-                ₹ 2,501.00 - ₹ 5,000.00
-              </label>
+              {["Under ₹2500.00", "₹2501.00 - ₹5000.00"].map((price, index) => (
+                <div key={index} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={`price-${index}`}
+                    className="form-checkbox h-4 w-4 text-slate-800 bg-slate-200 border-gray-300 rounded-sm focus:ring-slate-500"
+                  />
+                  <label
+                    htmlFor={`price-${index}`}
+                    className="ml-2 text-slate-800 font-medium cursor-pointer"
+                  >
+                    {price}
+                  </label>
+                </div>
+              ))}
             </div>
           </div>
         </aside>
@@ -353,61 +200,114 @@ const Product = () => {
         {/* Main Content */}
         <main className="flex-1 md:ml-6">
           {/* Header */}
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="font-sans font-bold text-[18px] text-[#111111]">
-              New (500)
-            </h3>
-            <button
-              className="md:hidden text-[#111111] font-sans font-medium text-[16px]"
-              onClick={() => setIsSidebarOpen(true)}
-            >
-              Show Filters ☰
-            </button>
-            <div className="hidden md:flex items-center space-x-6">
-              <div className="flex items-center space-x-2">
-                <p className="font-sans text-[16px] text-[#111111]">
+          <div className="flex items-center justify-between px-6 py-4 bg-white shadow rounded-lg">
+            <div className="text-lg font-semibold mx-4">
+              New{" "}
+              <span className="text-gray-500">({currentProducts.length})</span>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={toggleFilters}
+                className="flex items-center bg-gray-100 px-4 py-2 rounded-lg shadow-sm text-gray-600 hover:bg-gray-200"
+              >
+                {filterVisible ? "Hide Filters" : "Show Filters"}
+              </button>
+
+              {/* Sort By Button */}
+              <div className="relative">
+                <button
+                  onClick={() => setSortVisible(!sortVisible)}
+                  className="flex items-center bg-gray-100 px-4 py-2 rounded-lg shadow-sm text-gray-600 hover:bg-gray-200"
+                >
                   Sort By
-                </p>
-                <Image
-                  src={"/images/dropdown.svg"}
-                  alt="Dropdown Icon"
-                  width={14}
-                  height={14}
-                />
+                </button>
+
+                {sortVisible && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
+                    <button
+                      onClick={() => handleSortClick("featured")}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    >
+                      Featured
+                    </button>
+                    <button
+                      onClick={() => handleSortClick("newest")}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    >
+                      Newest
+                    </button>
+                    <button
+                      onClick={() => handleSortClick("lowToHigh")}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    >
+                      Price: Low to High
+                    </button>
+                    <button
+                      onClick={() => handleSortClick("highToLow")}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    >
+                      Price: High to Low
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           {/* Product Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <Link href={"./ProductDetail"} key={product.id} passHref>
-              <div
-                key={product.id}
-                className="border border-[#CCCCCC] p-4 rounded-lg hover:shadow-md transition-shadow duration-300"
-              >
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  width={200}
-                  height={200}
-                  className="mb-4"
-                />
-                <p className="font-sans font-medium text-[14px] text-[#FF0000] mb-2">
-                  {product.label}
-                </p>
-                <p className="font-sans font-bold text-[16px] text-[#111111]">
-                  {product.name}
-                </p>
-                <p className="font-sans font-medium text-[14px] text-[#666666]">
-                  {product.description}
-                </p>
-                <p className="font-sans font-bold text-[16px] text-[#111111] mt-2">
-                  MRP: {product.price}
-                </p>
-              </div>
-              </Link>
-            ))}
+          {productsVisible && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {currentProducts.map((product) => {
+                // const productSlug = product?.slug?.current || "default-slug";
+
+                return (
+                  <div
+                    key={product._id}
+                    className="border border-[#CCCCCC] p-4 rounded-lg hover:shadow-md transition-shadow duration-300 cursor-pointer"
+                  >
+                    <Link href={`./Product/${product.slug}`}>
+                      <div className="relative w-full h-[300px] mb-4">
+                        <Image
+                          src={product.imageUrl}
+                          alt={product.productName}
+                          width={200}
+                          height={200}
+                          className="mb-4 object-cover rounded-lg"
+                        />
+                        <p className="font-sans font-medium text-[14px] text-[#FF0000] mb-2">
+                          {product.status}
+                        </p>
+                        <p className="font-sans font-bold text-[16px] text-[#111111]">
+                          {product.productName}
+                        </p>
+                        <p className="font-sans font-medium text-[14px] text-[#666666]">
+                          ₹{product.price}
+                        </p>
+                      </div>
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-gray-200 text-gray-600 rounded-lg mr-4 disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === Math.ceil(sortedProducts.length / productsPerPage)}
+              className="px-4 py-2 bg-gray-200 text-gray-600 rounded-lg disabled:opacity-50"
+            >
+              Next
+            </button>
           </div>
         </main>
       </div>
@@ -415,4 +315,4 @@ const Product = () => {
   );
 };
 
-export default Product;
+export default ProductPage;

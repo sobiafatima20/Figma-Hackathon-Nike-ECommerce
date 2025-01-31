@@ -1,6 +1,29 @@
 "use client";
 
 import Image from "next/image";
+import { useState, useEffect } from "react";
+import { createClient } from "@sanity/client";
+
+const client = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  useCdn: false,
+  token: process.env.SANITY_API_TOKEN,
+  apiVersion: '2021-08-31'
+});
+
+type Product = {
+  _id: string;
+  productName: string;
+  category: string;
+  price: number;
+  inventory: number;
+  colors: string[];
+  status: string;
+  imageUrl: string;
+  description: string;
+};
+
 
 const GearUp = () => {
     const scrollLeft = (id: string) => {
@@ -16,6 +39,31 @@ const GearUp = () => {
         carousel.scrollLeft += 300; // Adjust scroll distance as needed
       }
     };
+     const [products, setProducts] = useState<Product[]>([]);
+    
+      useEffect(() => {
+        const fetchProducts = async () => {
+          const query = `*[_type == "product"] {
+            _id,
+            productName,
+            category,
+            price,
+            inventory,
+            colors,
+            status,
+            "imageUrl": image.asset->url,
+            description
+          }`;
+          try {
+            const result = await client.fetch(query);
+            setProducts(result);
+          } catch (error) {
+            console.error("Error fetching products:", error);
+          }
+        };
+    
+        fetchProducts();
+      }, []);
     
 
   return (

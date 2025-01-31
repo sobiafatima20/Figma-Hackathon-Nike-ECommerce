@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import Header from "@/components/Header";
+import { CartProvider } from "./context/CartContext";
+import { WishlistProvider } from "./context/WishlistContext";
 import Footer from "@/components/Footer";
 
 const inter = Inter({
@@ -35,8 +37,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased ${inter.className}`}
       >
+        <CartProvider>
+        <WishlistProvider>
         <Header/>
         <main>{children}</main>
+        </WishlistProvider>
+        </CartProvider>
         <Footer/>
       </body>
     </html>
