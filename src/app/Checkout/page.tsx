@@ -7,7 +7,7 @@ import { CiHeart } from "react-icons/ci"
 import { RiDeleteBin6Line } from "react-icons/ri"
 import Image from "next/image"
 import { useCart } from "./../context/CartContext"
-import OrderSummary from "../OrderSummary/page"
+import OrderSummary from "../OrderSummary/OrderSummary"
 import { checkoutSchema, type CheckoutFormData } from "./../schemas/checkoutSchema"
 import Link from "next/link"
 
