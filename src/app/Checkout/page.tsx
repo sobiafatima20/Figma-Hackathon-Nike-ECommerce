@@ -30,6 +30,7 @@ const CheckoutPage = () => {
 
   const onSubmit = async (data: CheckoutFormData) => {
     // Simulate order submission
+    console.log("Form Data Submitted:", data);
     setOrderStatus("Processing")
     await new Promise((resolve) => setTimeout(resolve, 2000))
     setOrderStatus("Order placed successfully!")

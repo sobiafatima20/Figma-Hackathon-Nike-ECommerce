@@ -28,7 +28,7 @@ type Product = {
 };
 
 const ProductPage = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const [products, setProducts] = useState<Product[]>([]);
   const [sortedProducts, setSortedProducts] = useState<Product[]>([]);
   const [filterVisible, setFilterVisible] = useState(true);
@@ -111,11 +111,7 @@ const ProductPage = () => {
     <section className="w-full px-4 md:px-8 py-8">
       <div className="flex flex-col md:flex-row">
         {/* Sidebar */}
-        <aside
-          className={`fixed md:static bg-white z-20 w-[300px] p-6 space-y-6 shadow-lg md:shadow-none transform md:translate-x-0 transition-transform duration-300 ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } md:w-[300px]`}
-        >
+        <aside>
           {/* Sidebar Content */}
           {/* Search Bar */}
           <input
