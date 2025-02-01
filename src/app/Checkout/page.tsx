@@ -13,7 +13,7 @@ import Link from "next/link"
 
 
 const CheckoutPage = () => {
-  const { cart, removeFromCart, updateQuantity } = useCart()
+  const { cart, removeFromCart } = useCart()
   const [orderStatus, setOrderStatus] = useState("")
 
   const {
@@ -151,17 +151,7 @@ const CheckoutPage = () => {
                   </div>
                   <p>Size: {item.size}</p>
                   <div className="flex justify-between items-center mt-2">
-                    <select
-                      value={item.quantity}
-                      onChange={(e) => updateQuantity(item._id, item.size, Number.parseInt(e.target.value))}
-                      className="border rounded p-1"
-                    >
-                      {[1, 2, 3, 4, 5].map((num) => (
-                        <option key={num} value={num}>
-                          {num}
-                        </option>
-                      ))}
-                    </select>
+                   
                     <div className="flex space-x-2">
                       <button className="text-gray-600 hover:text-black">
                         <CiHeart size={24} />
